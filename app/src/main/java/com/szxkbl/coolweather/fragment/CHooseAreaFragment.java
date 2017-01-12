@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,6 +95,7 @@ public class ChooseAreaFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (currentLevel == LEVEL_PROVINCE) {
                     mSelectedProvince = mProvinceList.get(i);
+                    queryCities();
                 } else if (currentLevel == LEVEL_CITY) {
                     mSelectedCity = mCityList.get(i);
                     queryCountries();
@@ -120,7 +122,7 @@ public class ChooseAreaFragment extends Fragment {
         if (mProvinceList.size() > 0) {
             dataList.clear();
             for (Province province : mProvinceList) {
-                dataList.add(province.getProvincename());
+                dataList.add(province.getProvinceName());
             }
             mAdapter.notifyDataSetChanged();
             mListView.setSelection(0);
@@ -149,6 +151,7 @@ public class ChooseAreaFragment extends Fragment {
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseText = response.body().string();
+                Log.e("Tag", "onResponse: " + responseText);
                 boolean result = false;
                 if ("province".equals(type)) {
                     result = Utility.handProvinceResponse(responseText);
@@ -192,9 +195,9 @@ public class ChooseAreaFragment extends Fragment {
     }
 
     private void queryCities() {
-        mTitleText.setText(mSelectedProvince.getProvincename());
+        mTitleText.setText(mSelectedProvince.getProvinceName());
         mBackBtn.setVisibility(View.VISIBLE);
-        mCityList = DataSupport.where("province = ?", String.valueOf(mSelectedProvince.getId())).find(City.class);
+        mCityList = DataSupport.where("provinceId = ?", String.valueOf(mSelectedProvince.getId())).find(City.class);
         if (mCityList.size() > 0) {
             dataList.clear();
             for (City city : mCityList) {
@@ -204,8 +207,8 @@ public class ChooseAreaFragment extends Fragment {
             mListView.setSelection(0);
             currentLevel = LEVEL_CITY;
         } else {
-            int provinceCode = mSelectedProvince.getProvincecode();
-            String address = "http://guolin.tech/api.china/" + provinceCode;
+            int provinceCode = mSelectedProvince.getProvinceCode();
+            String address = "http://guolin.tech/api/china/" + provinceCode;
             queryFromServer(address, "city");
         }
     }
@@ -224,7 +227,7 @@ public class ChooseAreaFragment extends Fragment {
             mListView.setSelection(0);
             currentLevel = LEVEL_COUNTRY;
         } else {
-            int provinceCode = mSelectedProvince.getProvincecode();
+            int provinceCode = mSelectedProvince.getProvinceCode();
             int cityCode = mSelectedCity.getCityCode();
             String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
             queryFromServer(address, "country");

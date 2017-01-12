@@ -1,6 +1,7 @@
 package com.szxkbl.coolweather.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.szxkbl.coolweather.db.City;
 import com.szxkbl.coolweather.db.Country;
@@ -30,8 +31,8 @@ public class Utility {
                 for (int i = 0; i < allProvinces.length(); i++) {
                     JSONObject provinceObject = allProvinces.getJSONObject(i);
                     Province province = new Province();
-                    province.setProvincename(provinceObject.getString("name"));
-                    province.setProvincecode(provinceObject.getInt("id"));
+                    province.setProvinceName(provinceObject.getString("name"));
+                    province.setProvinceCode(provinceObject.getInt("id"));
                     province.save();
                 }
                 return true;
@@ -50,10 +51,11 @@ public class Utility {
      */
     public static boolean handCityResponse(String response, int provinceId) {
         if (!TextUtils.isEmpty(response)) {
+            Log.e("TAG", "handCityResponse: " + response);
             try {
-                JSONArray allCitys = new JSONArray(response);
-                for (int i = 0; i < allCitys.length(); i++) {
-                    JSONObject cityObject = allCitys.getJSONObject(i);
+                JSONArray allCities = new JSONArray(response);
+                for (int i = 0; i < allCities.length(); i++) {
+                    JSONObject cityObject = allCities.getJSONObject(i);
                     City city = new City();
                     city.setCityName(cityObject.getString("name"));
                     city.setCityCode(cityObject.getInt("id"));
@@ -74,7 +76,7 @@ public class Utility {
      * @param response
      * @return
      */
-    public static boolean handCountryResponse(String response, int provinceId) {
+    public static boolean handCountryResponse(String response, int cityId) {
         if (!TextUtils.isEmpty(response)) {
             try {
                 JSONArray allCountries = new JSONArray(response);
@@ -83,7 +85,7 @@ public class Utility {
                     Country country = new Country();
                     country.setCountryName(countryObject.getString("name"));
                     country.setWeatherId(countryObject.getString("weather_id"));
-                    country.setCityId(provinceId);
+                    country.setCityId(cityId);
                     country.save();
                 }
                 return true;
